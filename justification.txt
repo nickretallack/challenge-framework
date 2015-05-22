@@ -1,0 +1,3 @@
+I think I will use esprima because it appears to be the more established project.  Also, it beats acorn on acorn's own benchmarks, both on mobile and desktop versions of Chrome.
+
+Esprima supports IE8+.
