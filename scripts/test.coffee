@@ -40,14 +40,19 @@ window.check_code = (string, {must_have, mustnt_have, structures}) ->
 		# visit children
 
 		visit_child = (node, key, found_structures) ->
-			# child_structure_pointers = []
+			child_structure_pointers = []
 			# child_structure_pointers.concat structure_pointers
 			# for structure in found_structures
 			# 	if key of structure
 			# 		child_structure_pointers.concat structure[key]
 
-			for child_node in node[key] or []
-				visit_node child_node, child_structure_pointers
+			child = node[key]
+			if $.isArray child
+				for child_node in child
+					visit_node child_node, child_structure_pointers
+			else if child
+				visit_node child, child_structure_pointers
+			undefined
 
 		if node.type is 'IfStatement'
 			visit_child node, 'consequent'

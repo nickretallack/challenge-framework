@@ -27,14 +27,18 @@
         must_has.push(node.type);
       }
       visit_child = function(node, key, found_structures) {
-        var child_node, i, len, ref4, results;
-        ref4 = node[key] || [];
-        results = [];
-        for (i = 0, len = ref4.length; i < len; i++) {
-          child_node = ref4[i];
-          results.push(visit_node(child_node, child_structure_pointers));
+        var child, child_node, child_structure_pointers, i, len;
+        child_structure_pointers = [];
+        child = node[key];
+        if ($.isArray(child)) {
+          for (i = 0, len = child.length; i < len; i++) {
+            child_node = child[i];
+            visit_node(child_node, child_structure_pointers);
+          }
+        } else if (child) {
+          visit_node(child, child_structure_pointers);
         }
-        return results;
+        return void 0;
       };
       if (node.type === 'IfStatement') {
         visit_child(node, 'consequent');

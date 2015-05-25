@@ -21,12 +21,12 @@
       })(this));
     },
     render: function() {
-      return React.createElement("div", null, React.createElement("h2", null, "Code"), React.createElement("div", {
+      return React.createElement("div", {
         "ref": "text",
         "style": {
           height: this.props.height
         }
-      }));
+      });
     }
   });
 
@@ -53,7 +53,7 @@
   Feedback = React.createClass({
     render: function() {
       var content, must_hasnt, must_have, ok, structure_type;
-      content = this.props.feedback.error ? React.createElement("div", {
+      return content = this.props.feedback.error ? React.createElement("div", {
         "className": "bad"
       }, React.createElement("span", {
         "className": "glyphicon glyphicon-remove",
@@ -74,7 +74,6 @@
       }).call(this), React.createElement("div", null, "\t\t\t\tYour solution must have:", React.createElement("ul", {
         "className": "list-unstyled"
       }, must_have)));
-      return React.createElement("div", null, React.createElement("h2", null, "Feedback"), content);
     }
   });
 
@@ -162,7 +161,7 @@
         }
         return results;
       }).call(this);
-      return React.createElement("div", null, React.createElement("h2", null, "Exercise Settings"), React.createElement("table", {
+      return React.createElement("div", null, React.createElement("table", {
         "className": "table"
       }, React.createElement("thead", null, React.createElement("th", null), React.createElement("th", null, "Required"), React.createElement("th", null, "Allowed"), React.createElement("th", null, "Banned")), React.createElement("tbody", null, structures)), React.createElement("h3", null, "Code Structure"), React.createElement(CodeEditor, {
         "code": this.props.code_structure,
@@ -182,14 +181,14 @@
         "className": "row"
       }, React.createElement("div", {
         "className": "col-sm-4"
-      }, React.createElement(CodeEditor, {
+      }, React.createElement("h2", null, "Code"), React.createElement(CodeEditor, {
         "code": this.props.cortex.code,
         "height": 700.
       })), React.createElement("div", {
         "className": "col-sm-4"
-      }, feedback), React.createElement("div", {
+      }, React.createElement("h2", null, "Feedback"), feedback), React.createElement("div", {
         "className": "col-sm-4"
-      }, React.createElement(Requirements, React.__spread({}, this.props.cortex.requirements, {
+      }, React.createElement("h2", null, "Exercise Settings"), React.createElement(Requirements, React.__spread({}, this.props.cortex.requirements, {
         "onChange": this.onRequirementChange
       }))));
     }
@@ -201,7 +200,7 @@
 
   cortex = new Cortex({
     requirements: {
-      must_have: ['IfStatement'],
+      must_have: ['ForStatement'],
       mustnt_have: ['WhileStatement'],
       code_structure: default_code_structure
     },

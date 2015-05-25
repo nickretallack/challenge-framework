@@ -10,10 +10,7 @@ CodeEditor = React.createClass
 			@props.code.set session.getValue()
 
 	render: ->
-		<div>
-			<h2>Code</h2>
-			<div ref="text" style={height:@props.height}></div>
-		</div>
+		<div ref="text" style={height:@props.height}></div>
 
 MustHave = React.createClass
 	render: ->
@@ -40,11 +37,6 @@ Feedback = React.createClass
 				Your solution must have:
 				<ul className="list-unstyled">{must_have}</ul>
 			</div>
-
-		<div>
-			<h2>Feedback</h2>
-			{content}
-		</div>
 
 structure_types = ['IfStatement','WhileStatement','ForStatement','VariableDeclaration']
 
@@ -86,8 +78,6 @@ Requirements = React.createClass
 		structures = for structure_type in structure_types
 			<MustOrMustnt value={structure_type} required={@props.must_have} banned={@props.mustnt_have}/>
 		<div>
-			<h2>Exercise Settings</h2>
-
 			<table className="table">
 				<thead>
 					<th></th>
@@ -113,12 +103,15 @@ Application = React.createClass
 
 		<div className="row">
 			<div className="col-sm-4">
+				<h2>Code</h2>
 				<CodeEditor code={@props.cortex.code} height={700}/>
 			</div>
 			<div className="col-sm-4">
+				<h2>Feedback</h2>
 				{feedback}
 			</div>
 			<div className="col-sm-4">
+				<h2>Exercise Settings</h2>
 				<Requirements {...@props.cortex.requirements} onChange={@onRequirementChange}/>				
 			</div>
 		</div>
@@ -144,7 +137,7 @@ for(;;) {
 # state management
 cortex = new Cortex
 	requirements:
-		must_have:['IfStatement']
+		must_have:['ForStatement']
 		mustnt_have:['WhileStatement']
 		code_structure: default_code_structure
 	code: default_code
