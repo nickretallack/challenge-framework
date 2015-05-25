@@ -52,28 +52,41 @@
 
   Feedback = React.createClass({
     render: function() {
-      var content, must_hasnt, must_have, ok, structure_type;
+      var banned, banned_has, banned_nodes, banned_structures, content, ok, required, required_missing, required_nodes, required_structures, structure_type;
       return content = this.props.feedback.error ? React.createElement("div", {
         "className": "bad"
       }, React.createElement("span", {
         "className": "glyphicon glyphicon-remove",
         "aria-hidden": "true"
-      }), " ", this.props.feedback.error) : (must_hasnt = this.props.feedback.must_hasnt, must_have = (function() {
-        var i, len, ref, results;
-        ref = this.props.requirements.must_have.val();
+      }), " ", this.props.feedback.error) : (required_structures = this.props.requirements.must_have.val(), required = required_structures.length ? (required_missing = this.props.feedback.must_hasnt, required_nodes = (function() {
+        var i, len, results;
         results = [];
-        for (i = 0, len = ref.length; i < len; i++) {
-          structure_type = ref[i];
-          ok = indexOf.call(must_hasnt, structure_type) < 0;
+        for (i = 0, len = required_structures.length; i < len; i++) {
+          structure_type = required_structures[i];
+          ok = indexOf.call(required_missing, structure_type) < 0;
           results.push(React.createElement(MustHave, {
             "value": structure_type,
             "ok": ok
           }));
         }
         return results;
-      }).call(this), React.createElement("div", null, "\t\t\t\tYour solution must have:", React.createElement("ul", {
+      })(), React.createElement("div", null, "\t\t\t\t\tYour solution must have:", React.createElement("ul", {
         "className": "list-unstyled"
-      }, must_have)));
+      }, required_nodes))) : void 0, banned_structures = this.props.requirements.mustnt_have.val(), banned = banned_structures.length ? (banned_has = this.props.feedback.mustnt_has, banned_nodes = (function() {
+        var i, len, results;
+        results = [];
+        for (i = 0, len = banned_structures.length; i < len; i++) {
+          structure_type = banned_structures[i];
+          ok = indexOf.call(banned_has, structure_type) < 0;
+          results.push(React.createElement(MustHave, {
+            "value": structure_type,
+            "ok": ok
+          }));
+        }
+        return results;
+      })(), React.createElement("div", null, "\t\t\t\t\tYour solution must not have:", React.createElement("ul", {
+        "className": "list-unstyled"
+      }, banned_nodes))) : void 0, React.createElement("div", null, required, banned));
     }
   });
 

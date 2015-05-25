@@ -28,14 +28,33 @@ Feedback = React.createClass
 		content = if @props.feedback.error
 			<div className="bad"><span className="glyphicon glyphicon-remove" aria-hidden="true"></span> {@props.feedback.error}</div>
 		else
-			must_hasnt = @props.feedback.must_hasnt
-			must_have = for structure_type in @props.requirements.must_have.val()
-				ok = structure_type not in must_hasnt #@props.feedback.must_hasnt.find (item) => item.val() == structure_type
-				<MustHave value={structure_type} ok={ok}/>
+			required_structures = @props.requirements.must_have.val()
+			required = if required_structures.length
+				required_missing = @props.feedback.must_hasnt
+				required_nodes = for structure_type in required_structures
+					ok = structure_type not in required_missing
+					<MustHave value={structure_type} ok={ok}/>
+
+				<div>
+					Your solution must have:
+					<ul className="list-unstyled">{required_nodes}</ul>
+				</div>
+
+			banned_structures = @props.requirements.mustnt_have.val()
+			banned = if banned_structures.length
+				banned_has = @props.feedback.mustnt_has
+				banned_nodes = for structure_type in banned_structures
+					ok = structure_type not in banned_has
+					<MustHave value={structure_type} ok={ok}/>
+
+				<div>
+					Your solution must not have:
+					<ul className="list-unstyled">{banned_nodes}</ul>
+				</div>
 
 			<div>
-				Your solution must have:
-				<ul className="list-unstyled">{must_have}</ul>
+				{required}
+				{banned}
 			</div>
 
 structure_types = ['IfStatement','WhileStatement','ForStatement','VariableDeclaration']
