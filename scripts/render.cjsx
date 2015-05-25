@@ -12,15 +12,18 @@ CodeEditor = React.createClass
 	render: ->
 		<div ref="text" style={height:@props.height}></div>
 
+
+
 MustHave = React.createClass
 	render: ->
+		name = display_names[@props.value]
 		if @props.ok
 			<li className="good">
-				<span className="glyphicon glyphicon-ok" aria-hidden="true"></span> {@props.value}
+				<span className="glyphicon glyphicon-ok" aria-hidden="true"></span> {name}
 			</li>
 		else
 			<li className="bad">
-				<span className="glyphicon glyphicon-remove" aria-hidden="true"></span> {@props.value}
+				<span className="glyphicon glyphicon-remove" aria-hidden="true"></span> {name}
 			</li>
 
 Feedback = React.createClass
@@ -57,7 +60,13 @@ Feedback = React.createClass
 				{banned}
 			</div>
 
-structure_types = ['IfStatement','WhileStatement','ForStatement','VariableDeclaration']
+display_names =
+	IfStatement: "If Statement"
+	WhileStatement: "While Loop"
+	ForStatement: "For Loop"
+	VariableDeclaration: "Variable Declaration"
+
+structure_types = (key for key of display_names)
 
 MustOrMustnt = React.createClass
 	require: ->
@@ -86,7 +95,7 @@ MustOrMustnt = React.createClass
 		allowed = not required and not banned
 
 		<tr>
-			<td>{@props.value}</td>
+			<td>{display_names[@props.value]}</td>
 			<td class="radio"><label><input name={@props.value} type="radio" checked={required} onChange={@require}/></label></td>
 			<td class="radio"><label><input name={@props.value} type="radio" checked={allowed} onChange={@allow}/></label></td>
 			<td class="radio"><label><input name={@props.value} type="radio" checked={banned} onChange={@ban}/></label></td>
