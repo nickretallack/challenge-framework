@@ -15,16 +15,6 @@ CodeEditor = React.createClass
 			<div ref="text" style={height:700}></div>
 		</div>
 
-# CodeEditor = React.createClass
-# 	onChange: (event) ->
-# 		@props.code.set @refs.text.getDOMNode().value
-
-# 	render: ->
-# 		<div>
-# 			<h2>Code</h2>
-# 			<textarea onChange={@onChange} ref="text" value={@props.code.val()} className="form-control" rows="40"></textarea>
-# 		</div>
-
 MustHave = React.createClass
 	render: ->
 		if @props.ok
@@ -53,41 +43,57 @@ Feedback = React.createClass
 
 structure_types = ['IfStatement','WhileStatement','ForStatement','VariableDeclaration']
 
-ListCheckbox = React.createClass
-	onChange: (event) ->
-		checked = event.currentTarget.checked
-		was_checked = @isChecked()
-		if checked and not was_checked
-			@props.list.push @props.value
-		if not checked and was_checked
-			was_checked.remove()
+MustOrMustnt = React.createClass
+	require: ->
+		if !@findRequired()
+			@props.required.push @props.value
+		@findBanned()?.remove()
 
-	isChecked: ->
-		@props.list.find (item) => item.val() == @props.value
+	ban: ->
+		if !@findBanned()
+			@props.banned.push @props.value
+		@findRequired()?.remove()
+
+	allow: ->
+		@findRequired()?.remove()
+		@findBanned()?.remove()
+
+	findRequired: ->
+		@props.required.find (item) => item.val() == @props.value
+
+	findBanned: ->
+		@props.banned.find (item) => item.val() == @props.value
 
 	render: ->
-		checked = @isChecked()
-		<div className="checkbox">
-			<label>
-				<input type="checkbox" checked={checked} onChange={@onChange}/> {@props.value}
-			</label>
-		</div>
+		required = @findRequired()
+		banned = @findBanned()
+		allowed = not required and not banned
+
+		<tr>
+			<td>{@props.value}</td>
+			<td class="radio"><label><input name={@props.value} type="radio" checked={required} onChange={@require}/></label></td>
+			<td class="radio"><label><input name={@props.value} type="radio" checked={allowed} onChange={@allow}/></label></td>
+			<td class="radio"><label><input name={@props.value} type="radio" checked={banned} onChange={@ban}/></label></td>
+		</tr>
 
 Requirements = React.createClass
 	render: ->
-		must_have = for structure_type in structure_types
-			<ListCheckbox value={structure_type} list={@props.must_have} key={structure_type}/>
-
-		mustnt_have = for structure_type in structure_types
-			<ListCheckbox value={structure_type} list={@props.mustnt_have} key={structure_type}/>
-
+		structures = for structure_type in structure_types
+			<MustOrMustnt value={structure_type} required={@props.must_have} banned={@props.mustnt_have}/>
 		<div>
 			<h2>Exercise Settings</h2>
-			<h3>Must Have</h3>
-			{must_have}
 
-			<h3>Mustnt Have</h3>
-			{mustnt_have}
+			<table className="table">
+				<thead>
+					<th></th>
+					<th>Required</th>
+					<th>Allowed</th>
+					<th>Banned</th>
+				</thead>
+				<tbody>
+					{structures}
+				</tbody>
+			</table>
 		</div>
 
 Application = React.createClass
@@ -97,13 +103,13 @@ Application = React.createClass
 			<Feedback feedback={@props.feedback} requirements={@props.cortex.requirements}/>
 
 		<div className="row">
-			<div className="col-sm-5">
+			<div className="col-sm-4">
 				<CodeEditor code={@props.cortex.code}/>
 			</div>
 			<div className="col-sm-4">
 				{feedback}
 			</div>
-			<div className="col-sm-3">
+			<div className="col-sm-4">
 				<Requirements {...@props.cortex.requirements} onChange={@onRequirementChange}/>				
 			</div>
 		</div>
