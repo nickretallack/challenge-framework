@@ -33,7 +33,7 @@
   MustHave = React.createClass({
     render: function() {
       var name;
-      name = display_names[this.props.value];
+      name = display_names[this.props.value] || this.props.value;
       if (this.props.ok) {
         return React.createElement("li", {
           "className": "good"
@@ -61,7 +61,7 @@
 
   Feedback = React.createClass({
     render: function() {
-      var banned, banned_has, banned_nodes, banned_structures, error, ok, required, required_missing, required_nodes, required_structures, structure_type;
+      var banned, banned_has, banned_nodes, banned_structures, error, ok, required, required_missing, required_nodes, required_structures, structure_match, structure_type;
       if (this.props.feedback.error) {
         error = React.createElement("div", {
           "className": "bad"
@@ -137,7 +137,16 @@
         })(), React.createElement("div", null, "\t\t\t\t\tYour solution must not have:", React.createElement("ul", {
           "className": "list-unstyled"
         }, banned_nodes))) : void 0;
-        return React.createElement("div", null, React.createElement("p", null, this.props.assignment_text.val()), required, banned);
+        structure_match = this.props.feedback.structure_match ? React.createElement(MustHave, {
+          "value": "Structure matches",
+          "ok": true
+        }) : React.createElement(MustHave, {
+          "value": "Structure doesn't match",
+          "ok": false
+        });
+        return React.createElement("div", null, React.createElement("p", null, this.props.assignment_text.val()), required, banned, React.createElement("ul", {
+          "className": "list-unstyled"
+        }, structure_match));
       }
     }
   });
@@ -281,7 +290,7 @@
 
   default_code = "var y = 5;\nif(y){\n	for(x=0; x<5; x++){\n		console.log('yay')\n	}\n}";
 
-  default_code_structure = "[\n	{\n		\"type\": \"IfStatement\",\n		\"consequent\":{\n			\"type\":\"ForStatement\"\n		}\n	}\n]";
+  default_code_structure = "[\n	{\n		\"type\": \"IfStatement\",\n		\"consequent\":[\n			{\n				\"type\":\"ForStatement\"\n			}\n		]\n	}\n]";
 
   default_assignment = "Write an If statement with a For Loop inside of it.  Do not use a While Loop.";
 

@@ -16,7 +16,7 @@ CodeEditor = React.createClass
 
 MustHave = React.createClass
 	render: ->
-		name = display_names[@props.value]
+		name = display_names[@props.value] or @props.value
 		if @props.ok
 			<li className="good">
 				<span className="glyphicon glyphicon-ok" aria-hidden="true"></span> {name}
@@ -87,10 +87,16 @@ Feedback = React.createClass
 					<ul className="list-unstyled">{banned_nodes}</ul>
 				</div>
 
+			structure_match = if @props.feedback.structure_match
+				<MustHave value="Structure matches" ok={true}/>
+			else
+				<MustHave value="Structure doesn't match" ok={false}/>
+
 			<div>
 				<p>{@props.assignment_text.val()}</p>
 				{required}
 				{banned}
+				<ul className="list-unstyled">{structure_match}</ul>
 			</div>
 
 
@@ -197,9 +203,11 @@ default_code_structure = """
 [
 	{
 		"type": "IfStatement",
-		"consequent":{
-			"type":"ForStatement"
-		}
+		"consequent":[
+			{
+				"type":"ForStatement"
+			}
+		]
 	}
 ]
 """

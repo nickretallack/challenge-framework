@@ -1,5 +1,17 @@
-# find_missing_structures = (structure) ->
-	
+traversibles = ['body','consequent','alternate','init','test','update']
+
+has_all_structures = (structures) ->
+	for structure in structures
+		if not structure.has
+			return false
+
+		for traversible of traversibles
+			if traversible of structure
+				result = has_all_structures structure[child_structures]
+				if result is false
+					return false
+	true
+
 window.check_code = (string, {must_have, mustnt_have, code_structure}) ->
 	must_have ||= []
 	mustnt_have ||= []
@@ -34,10 +46,10 @@ window.check_code = (string, {must_have, mustnt_have, code_structure}) ->
 
 		visit_child = (node, key) ->
 			child_structure_pointers = []
-			child_structures_pointers = child_structure_pointers.concat structure_pointers
+			child_structure_pointers = child_structure_pointers.concat structure_pointers
 			for structure in found_structures
 				if key of structure
-					child_structures_pointers = child_structure_pointers.concat structure[key]
+					child_structure_pointers.push structure[key]
 
 			child = node[key]
 			if $.isArray child
@@ -47,21 +59,19 @@ window.check_code = (string, {must_have, mustnt_have, code_structure}) ->
 				visit_node child, child_structure_pointers
 			undefined
 
-		if node.type is 'IfStatement'
-			visit_child node, 'consequent'
-			visit_child node, 'alternate'
-
-		if node.body?
-			visit_child node, 'body'
+		for traversible in traversibles
+			if traversible of node
+				visit_child node, traversible
 		
 		undefined
 
 	for node in parsed.body
 		visit_node node, [structure_has]
 
-	must_hasnt = (type for type in must_have when type not in must_has)
 	console.log structure_has
-	return {must_hasnt, mustnt_has, structure_has}
+
+	must_hasnt = (type for type in must_have when type not in must_has)
+	return {must_hasnt, mustnt_has, structure_has, structure_match:has_all_structures(structure_has)}
 
 snippet = """
  var y = 5;
