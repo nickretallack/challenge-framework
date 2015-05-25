@@ -1,23 +1,40 @@
 CodeEditor = React.createClass
-	onChange: (event) ->
-		@props.code.set @refs.text.getDOMNode().value
+	componentDidMount: ->
+		editor = ace.edit @refs.text.getDOMNode()
+		editor.$blockScrolling = Infinity
+		session = editor.getSession()
+		session.setValue @props.code.val()
+		session.setMode "ace/mode/javascript"
+		@setState session: session
+		session.on 'change', =>
+			@props.code.set session.getValue()
 
 	render: ->
 		<div>
 			<h2>Code</h2>
-			<textarea onChange={@onChange} ref="text" value={@props.code.val()} className="form-control" rows="40"></textarea>
+			<div ref="text" style={height:700}></div>
 		</div>
+
+# CodeEditor = React.createClass
+# 	onChange: (event) ->
+# 		@props.code.set @refs.text.getDOMNode().value
+
+# 	render: ->
+# 		<div>
+# 			<h2>Code</h2>
+# 			<textarea onChange={@onChange} ref="text" value={@props.code.val()} className="form-control" rows="40"></textarea>
+# 		</div>
 
 MustHave = React.createClass
 	render: ->
-		ok = if @props.ok
-			<span className="glyphicon glyphicon-ok" aria-hidden="true"></span>
+		if @props.ok
+			<li className="good">
+				<span className="glyphicon glyphicon-ok" aria-hidden="true"></span> {@props.value}
+			</li>
 		else
-			<span className="glyphicon glyphicon-remove" aria-hidden="true"></span>
-
-		<li>
-			{ok} {@props.value} 
-		</li>
+			<li className="bad">
+				<span className="glyphicon glyphicon-remove" aria-hidden="true"></span> {@props.value}
+			</li>
 
 Feedback = React.createClass
 	render: ->
@@ -117,3 +134,7 @@ cortex.on 'update', (newCortex) ->
 	application.setProps
 		cortex: newCortex
 		feedback: feedback
+
+# initial feedback
+feedback = check_code cortex.code.val(), cortex.requirements.val()
+application.setProps feedback: feedback
