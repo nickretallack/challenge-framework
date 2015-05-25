@@ -68,7 +68,8 @@
           ok = indexOf.call(required_missing, structure_type) < 0;
           results.push(React.createElement(MustHave, {
             "value": structure_type,
-            "ok": ok
+            "ok": ok,
+            "key": structure_type
           }));
         }
         return results;
@@ -82,7 +83,8 @@
           ok = indexOf.call(banned_has, structure_type) < 0;
           results.push(React.createElement(MustHave, {
             "value": structure_type,
-            "ok": ok
+            "ok": ok,
+            "key": structure_type
           }));
         }
         return results;
@@ -149,28 +151,22 @@
       required = this.findRequired();
       banned = this.findBanned();
       allowed = !required && !banned;
-      return React.createElement("tr", null, React.createElement("td", null, display_names[this.props.value]), React.createElement("td", {
-        "class": "radio"
-      }, React.createElement("label", null, React.createElement("input", {
+      return React.createElement("tr", null, React.createElement("td", null, display_names[this.props.value]), React.createElement("td", null, React.createElement("input", {
         "name": this.props.value,
         "type": "radio",
         "checked": required,
         "onChange": this.require
-      }))), React.createElement("td", {
-        "class": "radio"
-      }, React.createElement("label", null, React.createElement("input", {
+      })), React.createElement("td", null, React.createElement("input", {
         "name": this.props.value,
         "type": "radio",
         "checked": allowed,
         "onChange": this.allow
-      }))), React.createElement("td", {
-        "class": "radio"
-      }, React.createElement("label", null, React.createElement("input", {
+      })), React.createElement("td", null, React.createElement("input", {
         "name": this.props.value,
         "type": "radio",
         "checked": banned,
         "onChange": this.ban
-      }))));
+      })));
     }
   });
 
@@ -185,7 +181,8 @@
           results.push(React.createElement(MustOrMustnt, {
             "value": structure_type,
             "required": this.props.must_have,
-            "banned": this.props.mustnt_have
+            "banned": this.props.mustnt_have,
+            "key": structure_type
           }));
         }
         return results;
@@ -225,7 +222,7 @@
 
   default_code = "var y = 5;\nif(y){\n	for(x=0; x<5; x++){\n		console.log('yay')\n	}\n}";
 
-  default_code_structure = "for(;;) {\n	if (){\n\n	}\n}\n";
+  default_code_structure = "for(;;) {\n	if (ignore){\n\n	}\n}\n";
 
   cortex = new Cortex({
     requirements: {

@@ -36,7 +36,7 @@ Feedback = React.createClass
 				required_missing = @props.feedback.must_hasnt
 				required_nodes = for structure_type in required_structures
 					ok = structure_type not in required_missing
-					<MustHave value={structure_type} ok={ok}/>
+					<MustHave value={structure_type} ok={ok} key={structure_type}/>
 
 				<div>
 					Your solution must have:
@@ -48,7 +48,7 @@ Feedback = React.createClass
 				banned_has = @props.feedback.mustnt_has
 				banned_nodes = for structure_type in banned_structures
 					ok = structure_type not in banned_has
-					<MustHave value={structure_type} ok={ok}/>
+					<MustHave value={structure_type} ok={ok} key={structure_type}/>
 
 				<div>
 					Your solution must not have:
@@ -96,15 +96,15 @@ MustOrMustnt = React.createClass
 
 		<tr>
 			<td>{display_names[@props.value]}</td>
-			<td class="radio"><label><input name={@props.value} type="radio" checked={required} onChange={@require}/></label></td>
-			<td class="radio"><label><input name={@props.value} type="radio" checked={allowed} onChange={@allow}/></label></td>
-			<td class="radio"><label><input name={@props.value} type="radio" checked={banned} onChange={@ban}/></label></td>
+			<td><input name={@props.value} type="radio" checked={required} onChange={@require}/></td>
+			<td><input name={@props.value} type="radio" checked={allowed} onChange={@allow}/></td>
+			<td><input name={@props.value} type="radio" checked={banned} onChange={@ban}/></td>
 		</tr>
 
 Requirements = React.createClass
 	render: ->
 		structures = for structure_type in structure_types
-			<MustOrMustnt value={structure_type} required={@props.must_have} banned={@props.mustnt_have}/>
+			<MustOrMustnt value={structure_type} required={@props.must_have} banned={@props.mustnt_have} key={structure_type}/>
 		<div>
 			<table className="table">
 				<thead>
@@ -155,7 +155,7 @@ if(y){
 
 default_code_structure = """
 for(;;) {
-	if (){
+	if (ignore){
 
 	}
 }
