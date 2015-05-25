@@ -12,7 +12,7 @@ CodeEditor = React.createClass
 	render: ->
 		<div>
 			<h2>Code</h2>
-			<div ref="text" style={height:700}></div>
+			<div ref="text" style={height:@props.height}></div>
 		</div>
 
 MustHave = React.createClass
@@ -28,17 +28,22 @@ MustHave = React.createClass
 
 Feedback = React.createClass
 	render: ->
-		must_hasnt = @props.feedback.must_hasnt
-		must_have = for structure_type in @props.requirements.must_have.val()
-			ok = structure_type not in must_hasnt #@props.feedback.must_hasnt.find (item) => item.val() == structure_type
-			<MustHave value={structure_type} ok={ok}/>
+		content = if @props.feedback.error
+			<div className="bad"><span className="glyphicon glyphicon-remove" aria-hidden="true"></span> {@props.feedback.error}</div>
+		else
+			must_hasnt = @props.feedback.must_hasnt
+			must_have = for structure_type in @props.requirements.must_have.val()
+				ok = structure_type not in must_hasnt #@props.feedback.must_hasnt.find (item) => item.val() == structure_type
+				<MustHave value={structure_type} ok={ok}/>
+
+			<div>
+				Your solution must have:
+				<ul className="list-unstyled">{must_have}</ul>
+			</div>
 
 		<div>
 			<h2>Feedback</h2>
-			Your solution must have:
-			<ul className="list-unstyled">{must_have}</ul>
-
-			Some feedback
+			{content}
 		</div>
 
 structure_types = ['IfStatement','WhileStatement','ForStatement','VariableDeclaration']
@@ -94,6 +99,10 @@ Requirements = React.createClass
 					{structures}
 				</tbody>
 			</table>
+
+			<h3>Code Structure</h3>
+			<CodeEditor code={@props.code_structure} height={400}/>
+
 		</div>
 
 Application = React.createClass
@@ -104,7 +113,7 @@ Application = React.createClass
 
 		<div className="row">
 			<div className="col-sm-4">
-				<CodeEditor code={@props.cortex.code}/>
+				<CodeEditor code={@props.cortex.code} height={700}/>
 			</div>
 			<div className="col-sm-4">
 				{feedback}
@@ -123,19 +132,30 @@ if(y){
 }
 """
 
+default_code_structure = """
+for(;;) {
+	if (){
+
+	}
+}
+
+"""
+
 # state management
 cortex = new Cortex
 	requirements:
 		must_have:['IfStatement']
 		mustnt_have:['WhileStatement']
+		code_structure: default_code_structure
 	code: default_code
 
 application = React.render <Application cortex={cortex}/>, document.getElementById 'application'
 cortex.on 'update', (newCortex) ->
 	try
 		feedback = check_code newCortex.code.val(), newCortex.requirements.val()
-	catch
-		feedback = null
+	catch error
+		feedback =
+			error: error
 
 	application.setProps
 		cortex: newCortex
