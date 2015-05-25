@@ -4,7 +4,7 @@ CodeEditor = React.createClass
 		editor.$blockScrolling = Infinity
 		session = editor.getSession()
 		session.setValue @props.code.val()
-		session.setMode "ace/mode/javascript"
+		session.setMode @props.mode or "ace/mode/javascript"
 		@setState session: session
 		session.on 'change', =>
 			@props.code.set session.getValue()
@@ -21,15 +21,47 @@ MustHave = React.createClass
 			<li className="good">
 				<span className="glyphicon glyphicon-ok" aria-hidden="true"></span> {name}
 			</li>
-		else
+		else if @props.ok is false
 			<li className="bad">
 				<span className="glyphicon glyphicon-remove" aria-hidden="true"></span> {name}
+			</li>
+		else
+			<li className="unknown">
+				<span className="glyphicon glyphicon-question-sign" aria-hidden="true"></span> {name}
 			</li>
 
 Feedback = React.createClass
 	render: ->
-		content = if @props.feedback.error
-			<div className="bad"><span className="glyphicon glyphicon-remove" aria-hidden="true"></span> {@props.feedback.error}</div>
+		if @props.feedback.error
+			error = <div className="bad"><span className="glyphicon glyphicon-remove" aria-hidden="true"></span> {@props.feedback.error}</div>
+
+			required_structures = @props.requirements.must_have.val()
+			required = if required_structures.length
+				required_nodes = for structure_type in required_structures
+					<MustHave value={structure_type} ok={null} key={structure_type}/>
+
+				<div>
+					Your solution must have:
+					<ul className="list-unstyled">{required_nodes}</ul>
+				</div>
+
+			banned_structures = @props.requirements.mustnt_have.val()
+			banned = if banned_structures.length
+				banned_nodes = for structure_type in banned_structures
+					<MustHave value={structure_type} ok={null} key={structure_type}/>
+
+				<div>
+					Your solution must not have:
+					<ul className="list-unstyled">{banned_nodes}</ul>
+				</div>
+
+			<div>
+				<p>{@props.assignment_text.val()}</p>
+				{required}
+				{banned}
+				{error}
+			</div>
+
 		else
 			required_structures = @props.requirements.must_have.val()
 			required = if required_structures.length
@@ -56,9 +88,11 @@ Feedback = React.createClass
 				</div>
 
 			<div>
+				<p>{@props.assignment_text.val()}</p>
 				{required}
 				{banned}
 			</div>
+
 
 display_names =
 	IfStatement: "If Statement"
@@ -102,10 +136,16 @@ MustOrMustnt = React.createClass
 		</tr>
 
 Requirements = React.createClass
+	onEditAssignment: (event) ->
+		@props.assignment_text.set event.currentTarget.value
+
 	render: ->
 		structures = for structure_type in structure_types
 			<MustOrMustnt value={structure_type} required={@props.must_have} banned={@props.mustnt_have} key={structure_type}/>
 		<div>
+			<h3>Assignment</h3>
+			<textarea onChange={@onEditAssignment} value={@props.assignment_text.val()} rows={5} className="form-control"></textarea>
+
 			<table className="table">
 				<thead>
 					<th></th>
@@ -119,7 +159,7 @@ Requirements = React.createClass
 			</table>
 
 			<h3>Code Structure</h3>
-			<CodeEditor code={@props.code_structure} height={400}/>
+			<CodeEditor code={@props.code_structure} height={400} mode="ace/mode/json"/>
 
 		</div>
 
@@ -127,7 +167,7 @@ Application = React.createClass
 	render: ->
 
 		feedback = if @props.feedback
-			<Feedback feedback={@props.feedback} requirements={@props.cortex.requirements}/>
+			<Feedback feedback={@props.feedback} requirements={@props.cortex.requirements} assignment_text={@props.cortex.assignment_text}/>
 
 		<div className="row">
 			<div className="col-sm-4">
@@ -140,7 +180,7 @@ Application = React.createClass
 			</div>
 			<div className="col-sm-4">
 				<h2>Exercise Settings</h2>
-				<Requirements {...@props.cortex.requirements} onChange={@onRequirementChange}/>				
+				<Requirements {...@props.cortex.requirements} onChange={@onRequirementChange} assignment_text={@props.cortex.assignment_text}/>				
 			</div>
 		</div>
 
@@ -154,12 +194,18 @@ if(y){
 """
 
 default_code_structure = """
-for(;;) {
-	if (ignore){
-
+[
+	{
+		"type": "IfStatement",
+		"consequent":{
+			"type":"ForStatement"
+		}
 	}
-}
+]
+"""
 
+default_assignment = """
+Write an If statement with a For Loop inside of it.  Do not use a While Loop.
 """
 
 # state management
@@ -169,6 +215,7 @@ cortex = new Cortex
 		mustnt_have:['WhileStatement']
 		code_structure: default_code_structure
 	code: default_code
+	assignment_text: default_assignment
 
 application = React.render <Application cortex={cortex}/>, document.getElementById 'application'
 cortex.on 'update', (newCortex) ->

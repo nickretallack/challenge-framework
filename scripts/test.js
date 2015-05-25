@@ -4,18 +4,17 @@
     indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   window.check_code = function(string, arg) {
-    var i, len, must_has, must_hasnt, must_have, mustnt_has, mustnt_have, node, parsed, ref, structure_has, structures, type, visit_node;
-    must_have = arg.must_have, mustnt_have = arg.mustnt_have, structures = arg.structures;
+    var code_structure, i, len, must_has, must_hasnt, must_have, mustnt_has, mustnt_have, node, parsed, ref, structure_has, type, visit_node;
+    must_have = arg.must_have, mustnt_have = arg.mustnt_have, code_structure = arg.code_structure;
     must_have || (must_have = []);
     mustnt_have || (mustnt_have = []);
-    structures || (structures = []);
+    structure_has = JSON.parse(code_structure);
     parsed = esprima.parse(string);
     console.log(parsed);
     must_has = [];
     mustnt_has = [];
-    structure_has = $.extend(true, [], structures);
     visit_node = function(node, structure_pointers) {
-      var ref, ref1, ref2, ref3, visit_child;
+      var found_structures, i, j, len, len1, pointer, ref, ref1, ref2, ref3, structure, visit_child;
       if (node === null) {
         return;
       }
@@ -23,16 +22,33 @@
         mustnt_has.push(node.type);
       }
       if ((ref2 = node.type, indexOf.call(must_have, ref2) >= 0) && (ref3 = node.type, indexOf.call(must_has, ref3) < 0)) {
-        console.log("has", node.type);
         must_has.push(node.type);
       }
-      visit_child = function(node, key, found_structures) {
-        var child, child_node, child_structure_pointers, i, len;
+      found_structures = [];
+      for (i = 0, len = structure_pointers.length; i < len; i++) {
+        pointer = structure_pointers[i];
+        for (j = 0, len1 = pointer.length; j < len1; j++) {
+          structure = pointer[j];
+          if (node.type === structure.type) {
+            structure.has = true;
+            found_structures.push(structure);
+          }
+        }
+      }
+      visit_child = function(node, key) {
+        var child, child_node, child_structure_pointers, child_structures_pointers, k, l, len2, len3;
         child_structure_pointers = [];
+        child_structures_pointers = child_structure_pointers.concat(structure_pointers);
+        for (k = 0, len2 = found_structures.length; k < len2; k++) {
+          structure = found_structures[k];
+          if (key in structure) {
+            child_structures_pointers = child_structure_pointers.concat(structure[key]);
+          }
+        }
         child = node[key];
         if ($.isArray(child)) {
-          for (i = 0, len = child.length; i < len; i++) {
-            child_node = child[i];
+          for (l = 0, len3 = child.length; l < len3; l++) {
+            child_node = child[l];
             visit_node(child_node, child_structure_pointers);
           }
         } else if (child) {
@@ -65,9 +81,11 @@
       }
       return results;
     })();
+    console.log(structure_has);
     return {
       must_hasnt: must_hasnt,
-      mustnt_has: mustnt_has
+      mustnt_has: mustnt_has,
+      structure_has: structure_has
     };
   };
 

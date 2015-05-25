@@ -1,15 +1,15 @@
 # find_missing_structures = (structure) ->
 	
-window.check_code = (string, {must_have, mustnt_have, structures}) ->
+window.check_code = (string, {must_have, mustnt_have, code_structure}) ->
 	must_have ||= []
 	mustnt_have ||= []
-	structures ||= []
+	structure_has = JSON.parse code_structure
 
 	parsed = esprima.parse string
 	console.log parsed
 	must_has = []
 	mustnt_has = []
-	structure_has = $.extend true, [], structures
+	# structure_has = $.extend true, [], structures
 	# structure_has =  # todo: copy the structure so we can mess with it non-i
 
 	visit_node = (node, structure_pointers) ->
@@ -21,30 +21,23 @@ window.check_code = (string, {must_have, mustnt_have, structures}) ->
 			mustnt_has.push node.type
 
 		if node.type in must_have and node.type not in must_has
-			console.log "has", node.type
 			must_has.push node.type
 
-		# found_structures = []
-		# for pointer in structure_pointers
-		# 	for structure in pointer
-		# 		if node.type is structure.type
-		# 			structure.has = true
-		# 			found_structures.push structure
-					# child_structure_pointers = child_structure_pointers.concat 
-					# structure_pointers.concat  
-
-
-					# crap, mutability.  I want the pointer layer to be immutable, but i still want to store notes inside the lower layer.
-					# have my cake and eat it too.
+		found_structures = []
+		for pointer in structure_pointers
+			for structure in pointer
+				if node.type is structure.type
+					structure.has = true
+					found_structures.push structure
 
 		# visit children
 
-		visit_child = (node, key, found_structures) ->
+		visit_child = (node, key) ->
 			child_structure_pointers = []
-			# child_structure_pointers.concat structure_pointers
-			# for structure in found_structures
-			# 	if key of structure
-			# 		child_structure_pointers.concat structure[key]
+			child_structures_pointers = child_structure_pointers.concat structure_pointers
+			for structure in found_structures
+				if key of structure
+					child_structures_pointers = child_structure_pointers.concat structure[key]
 
 			child = node[key]
 			if $.isArray child
@@ -67,8 +60,8 @@ window.check_code = (string, {must_have, mustnt_have, structures}) ->
 		visit_node node, [structure_has]
 
 	must_hasnt = (type for type in must_have when type not in must_has)
-	# structure_missing = 
-	return {must_hasnt, mustnt_has}
+	console.log structure_has
+	return {must_hasnt, mustnt_has, structure_has}
 
 snippet = """
  var y = 5;
