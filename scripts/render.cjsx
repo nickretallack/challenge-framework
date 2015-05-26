@@ -7,7 +7,7 @@ display_names =
 	DoWhileStatement: "Do While Loop"
 
 	ForStatement: "For Loop"
-	ForInStatement: "For Of Loop"
+	ForInStatement: "For In Loop"
 	ForOfStatement: "For Of Loop"
 
 	TryStatement: "Try"
@@ -54,8 +54,12 @@ display_names =
 	SequenceExpression: "Commas"
 
 
+structure_types = (key for key of display_names)
+
 
 CodeEditor = React.createClass
+	displayName: "CodeEditor"
+
 	componentDidMount: ->
 		editor = ace.edit @refs.text.getDOMNode()
 		editor.$blockScrolling = Infinity
@@ -70,8 +74,9 @@ CodeEditor = React.createClass
 		<div ref="text" style={height:@props.height}></div>
 
 
-
 MustHave = React.createClass
+	displayName: "MustHave"
+
 	render: ->
 		name = display_names[@props.value] or @props.value
 		if @props.ok
@@ -87,12 +92,15 @@ MustHave = React.createClass
 				<span className="glyphicon glyphicon-question-sign" aria-hidden="true"></span> {name}
 			</li>
 
+
 Feedback = React.createClass
+	displayName: "Feedback"
+
 	render: ->
 		if @props.feedback.error
 			error = <div className="bad"><span className="glyphicon glyphicon-remove" aria-hidden="true"></span> {@props.feedback.error}</div>
 
-			required_structures = @props.requirements.must_have.val()
+			required_structures = @props.requirements.required.val()
 			required = if required_structures.length
 				required_nodes = for structure_type in required_structures
 					<MustHave value={structure_type} ok={null} key={structure_type}/>
@@ -102,7 +110,7 @@ Feedback = React.createClass
 					<ul className="list-unstyled">{required_nodes}</ul>
 				</div>
 
-			banned_structures = @props.requirements.mustnt_have.val()
+			banned_structures = @props.requirements.banned.val()
 			banned = if banned_structures.length
 				banned_nodes = for structure_type in banned_structures
 					<MustHave value={structure_type} ok={null} key={structure_type}/>
@@ -120,9 +128,9 @@ Feedback = React.createClass
 			</div>
 
 		else
-			required_structures = @props.requirements.must_have.val()
+			required_structures = @props.requirements.required.val()
 			required = if required_structures.length
-				required_missing = @props.feedback.must_hasnt
+				required_missing = @props.feedback.required_missing
 				required_nodes = for structure_type in required_structures
 					ok = structure_type not in required_missing
 					<MustHave value={structure_type} ok={ok} key={structure_type}/>
@@ -132,9 +140,9 @@ Feedback = React.createClass
 					<ul className="list-unstyled">{required_nodes}</ul>
 				</div>
 
-			banned_structures = @props.requirements.mustnt_have.val()
+			banned_structures = @props.requirements.banned.val()
 			banned = if banned_structures.length
-				banned_has = @props.feedback.mustnt_has
+				banned_has = @props.feedback.banned_found
 				banned_nodes = for structure_type in banned_structures
 					ok = structure_type not in banned_has
 					<MustHave value={structure_type} ok={ok} key={structure_type}/>
@@ -157,11 +165,9 @@ Feedback = React.createClass
 			</div>
 
 
+RequiredOrBanned = React.createClass
+	displayName: "RequiredOrBanned"
 
-
-structure_types = (key for key of display_names)
-
-MustOrMustnt = React.createClass
 	require: ->
 		if !@findRequired()
 			@props.required.push @props.value
@@ -194,17 +200,21 @@ MustOrMustnt = React.createClass
 			<td><input name={@props.value} type="radio" checked={banned} onChange={@ban}/></td>
 		</tr>
 
+
 Requirements = React.createClass
+	displayName: "Requirements"
+
 	onEditAssignment: (event) ->
 		@props.assignment_text.set event.currentTarget.value
 
 	render: ->
 		structures = for structure_type in structure_types
-			<MustOrMustnt value={structure_type} required={@props.must_have} banned={@props.mustnt_have} key={structure_type}/>
+			<RequiredOrBanned value={structure_type} required={@props.required} banned={@props.banned} key={structure_type}/>
 		<div>
 			<h3>Problem Description</h3>
 			<textarea onChange={@onEditAssignment} value={@props.assignment_text.val()} rows={5} className="form-control"></textarea>
 
+			<h3>Feature Usage</h3>
 			<div style={height: 300, overflow: 'auto'}>
 			<table className="table">
 				<thead>
@@ -224,9 +234,11 @@ Requirements = React.createClass
 
 		</div>
 
-Application = React.createClass
-	render: ->
 
+Application = React.createClass
+	displayName: "Application"
+
+	render: ->
 		feedback = if @props.feedback
 			<Feedback feedback={@props.feedback} requirements={@props.cortex.requirements} assignment_text={@props.cortex.assignment_text}/>
 
@@ -245,6 +257,7 @@ Application = React.createClass
 			</div>
 		</div>
 
+
 default_code = """
 for(var x=0; x<5; x++){
 	if(x % 2 === 0){
@@ -257,7 +270,7 @@ default_code_structure = """
 [
 	{
 		"type": "ForStatement",
-		"consequent":[
+		"body":[
 			{
 				"type":"IfStatement"
 			}
@@ -273,14 +286,15 @@ Write a For Loop with an If statement inside of it.  Do not use a While Loop.
 # state management
 cortex = new Cortex
 	requirements:
-		must_have:['ForStatement','VariableDeclaration']
-		mustnt_have:['WhileStatement']
+		required:['ForStatement','VariableDeclaration','IfStatement']
+		banned:['WhileStatement']
 		code_structure: default_code_structure
 	code: default_code
 	assignment_text: default_assignment
 
 application = React.render <Application cortex={cortex}/>, document.getElementById 'application'
 cortex.on 'update', (newCortex) ->
+	# run tests every time something changes
 	try
 		feedback = check_code newCortex.code.val(), newCortex.requirements.val()
 	catch error
