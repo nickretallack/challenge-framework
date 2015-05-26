@@ -3,6 +3,45 @@
   var Application, CodeEditor, Feedback, MustHave, MustOrMustnt, Requirements, application, cortex, default_assignment, default_code, default_code_structure, display_names, feedback, key, structure_types,
     indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
+  display_names = {
+    IfStatement: "If Statement",
+    SwitchStatement: "Switch Statement",
+    WhileStatement: "While Loop",
+    DoWhileStatement: "Do While Loop",
+    ForStatement: "For Loop",
+    ForInStatement: "For Of Loop",
+    ForOfStatement: "For Of Loop",
+    TryStatement: "Try",
+    ThrowStatement: "Throw",
+    ReturnStatement: "Return",
+    BreakStatement: "Break",
+    ContinueStatement: "Continue",
+    ExpressionStatement: "Expression Statement",
+    CallExpression: "Function Call",
+    MemberExpression: "Property Access",
+    VariableDeclaration: "Variable Declaration",
+    FunctionDeclaration: "Function Declaration",
+    FunctionExpression: "Function Expression",
+    AssignmentExpression: "Assignment Expression",
+    ArrayExpression: "Array Expression",
+    ObjectExpression: "Object Expression",
+    Literal: "Literal",
+    BinaryExpression: "Binary Operator",
+    UnaryExpression: "Unary Operator",
+    LogicalExpression: "Logical Operator",
+    UpdateExpression: "Update Operator",
+    ConditionalExpression: "Ternary Operator",
+    NewExpression: "New",
+    ThisExpression: "This",
+    ArrowExpression: "Fat Arrow",
+    ObjectPattern: "Object Pattern",
+    ArrayPattern: "Array Pattern",
+    WithStatement: "With Statement",
+    LabeledStatement: "Label",
+    DebuggerStatement: "Debug",
+    SequenceExpression: "Commas"
+  };
+
   CodeEditor = React.createClass({
     componentDidMount: function() {
       var editor, session;
@@ -151,13 +190,6 @@
     }
   });
 
-  display_names = {
-    IfStatement: "If Statement",
-    WhileStatement: "While Loop",
-    ForStatement: "For Loop",
-    VariableDeclaration: "Variable Declaration"
-  };
-
   structure_types = (function() {
     var results;
     results = [];
@@ -247,14 +279,19 @@
         }
         return results;
       }).call(this);
-      return React.createElement("div", null, React.createElement("h3", null, "Assignment"), React.createElement("textarea", {
+      return React.createElement("div", null, React.createElement("h3", null, "Problem Description"), React.createElement("textarea", {
         "onChange": this.onEditAssignment,
         "value": this.props.assignment_text.val(),
         "rows": 5.,
         "className": "form-control"
-      }), React.createElement("table", {
+      }), React.createElement("div", {
+        "style": {
+          height: 300,
+          overflow: 'auto'
+        }
+      }, React.createElement("table", {
         "className": "table"
-      }, React.createElement("thead", null, React.createElement("th", null), React.createElement("th", null, "Required"), React.createElement("th", null, "Allowed"), React.createElement("th", null, "Banned")), React.createElement("tbody", null, structures)), React.createElement("h3", null, "Code Structure"), React.createElement(CodeEditor, {
+      }, React.createElement("thead", null, React.createElement("th", null), React.createElement("th", null, "Required"), React.createElement("th", null, "Allowed"), React.createElement("th", null, "Banned")), React.createElement("tbody", null, structures))), React.createElement("h3", null, "Code Structure"), React.createElement(CodeEditor, {
         "code": this.props.code_structure,
         "height": 400.,
         "mode": "ace/mode/json"
@@ -288,15 +325,15 @@
     }
   });
 
-  default_code = "var y = 5;\nif(y){\n	for(x=0; x<5; x++){\n		console.log('yay')\n	}\n}";
+  default_code = "for(var x=0; x<5; x++){\n	if(x % 2 === 0){\n		console.log(x);\n	}\n}";
 
-  default_code_structure = "[\n	{\n		\"type\": \"IfStatement\",\n		\"consequent\":[\n			{\n				\"type\":\"ForStatement\"\n			}\n		]\n	}\n]";
+  default_code_structure = "[\n	{\n		\"type\": \"ForStatement\",\n		\"consequent\":[\n			{\n				\"type\":\"IfStatement\"\n			}\n		]\n	}\n]";
 
-  default_assignment = "Write an If statement with a For Loop inside of it.  Do not use a While Loop.";
+  default_assignment = "Write a For Loop with an If statement inside of it.  Do not use a While Loop.";
 
   cortex = new Cortex({
     requirements: {
-      must_have: ['ForStatement'],
+      must_have: ['ForStatement', 'VariableDeclaration'],
       mustnt_have: ['WhileStatement'],
       code_structure: default_code_structure
     },

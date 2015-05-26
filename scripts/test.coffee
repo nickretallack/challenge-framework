@@ -1,15 +1,17 @@
-traversibles = ['body','consequent','alternate','init','test','update']
+traversibles = ['body','expression','consequent','alternate','cases','init','test','update','declarations','left','right','handler','guardedHandlers','finalizer','argument','discriminant','callee','arguments','elements','properties']
 
 has_all_structures = (structures) ->
 	for structure in structures
 		if not structure.has
 			return false
 
-		for traversible of traversibles
-			if traversible of structure
-				result = has_all_structures structure[child_structures]
-				if result is false
-					return false
+		for key,value of structure
+			continue if key is 'type'
+
+			result = has_all_structures structure[key]
+			if result is false
+				return false
+
 	true
 
 window.check_code = (string, {must_have, mustnt_have, code_structure}) ->
@@ -18,11 +20,8 @@ window.check_code = (string, {must_have, mustnt_have, code_structure}) ->
 	structure_has = JSON.parse code_structure
 
 	parsed = esprima.parse string
-	console.log parsed
 	must_has = []
 	mustnt_has = []
-	# structure_has = $.extend true, [], structures
-	# structure_has =  # todo: copy the structure so we can mess with it non-i
 
 	visit_node = (node, structure_pointers) ->
 		return if node is null
@@ -68,21 +67,5 @@ window.check_code = (string, {must_have, mustnt_have, code_structure}) ->
 	for node in parsed.body
 		visit_node node, [structure_has]
 
-	console.log structure_has
-
 	must_hasnt = (type for type in must_have when type not in must_has)
 	return {must_hasnt, mustnt_has, structure_has, structure_match:has_all_structures(structure_has)}
-
-snippet = """
- var y = 5;
- if(y){
- 	for(x=0; x<5; x++){
- 		console.log('yay')
- 	}
- }
- """
-
-# console.log test snippet,
-# 	must_have:['IfStatement']
-# 	mustnt_have:['WhileStatement']
-# 	structure:[{type: 'IfStatement', consequent: {type:'ForStatement'}}]

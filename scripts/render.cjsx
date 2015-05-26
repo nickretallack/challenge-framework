@@ -1,3 +1,60 @@
+display_names =
+	# control structures
+	IfStatement: "If Statement"
+	SwitchStatement: "Switch Statement"
+
+	WhileStatement: "While Loop"
+	DoWhileStatement: "Do While Loop"
+
+	ForStatement: "For Loop"
+	ForInStatement: "For Of Loop"
+	ForOfStatement: "For Of Loop"
+
+	TryStatement: "Try"
+	ThrowStatement: "Throw"
+
+	ReturnStatement: "Return"
+	BreakStatement: "Break"
+	ContinueStatement: "Continue"
+
+	# common things
+	ExpressionStatement: "Expression Statement"
+	CallExpression: "Function Call"
+	MemberExpression: "Property Access"
+
+	# declarations and assignments
+	VariableDeclaration: "Variable Declaration"
+	FunctionDeclaration: "Function Declaration"
+	FunctionExpression: "Function Expression"
+	AssignmentExpression: "Assignment Expression"
+	ArrayExpression: "Array Expression"
+	ObjectExpression: "Object Expression"
+	Literal: "Literal"
+
+	# Operator Types
+	BinaryExpression: "Binary Operator"
+	UnaryExpression: "Unary Operator"
+	LogicalExpression: "Logical Operator"
+	UpdateExpression: "Update Operator"
+	ConditionalExpression: "Ternary Operator"
+
+	# objects
+	NewExpression: "New"
+	ThisExpression: "This"
+
+	# New stuff
+	ArrowExpression: "Fat Arrow"
+	ObjectPattern: "Object Pattern"
+	ArrayPattern: "Array Pattern"
+
+	# rarely used / barely relevant
+	WithStatement: "With Statement"
+	LabeledStatement: "Label"
+	DebuggerStatement: "Debug"
+	SequenceExpression: "Commas"
+
+
+
 CodeEditor = React.createClass
 	componentDidMount: ->
 		editor = ace.edit @refs.text.getDOMNode()
@@ -100,11 +157,7 @@ Feedback = React.createClass
 			</div>
 
 
-display_names =
-	IfStatement: "If Statement"
-	WhileStatement: "While Loop"
-	ForStatement: "For Loop"
-	VariableDeclaration: "Variable Declaration"
+
 
 structure_types = (key for key of display_names)
 
@@ -149,9 +202,10 @@ Requirements = React.createClass
 		structures = for structure_type in structure_types
 			<MustOrMustnt value={structure_type} required={@props.must_have} banned={@props.mustnt_have} key={structure_type}/>
 		<div>
-			<h3>Assignment</h3>
+			<h3>Problem Description</h3>
 			<textarea onChange={@onEditAssignment} value={@props.assignment_text.val()} rows={5} className="form-control"></textarea>
 
+			<div style={height: 300, overflow: 'auto'}>
 			<table className="table">
 				<thead>
 					<th></th>
@@ -163,6 +217,7 @@ Requirements = React.createClass
 					{structures}
 				</tbody>
 			</table>
+			</div>
 
 			<h3>Code Structure</h3>
 			<CodeEditor code={@props.code_structure} height={400} mode="ace/mode/json"/>
@@ -191,10 +246,9 @@ Application = React.createClass
 		</div>
 
 default_code = """
-var y = 5;
-if(y){
-	for(x=0; x<5; x++){
-		console.log('yay')
+for(var x=0; x<5; x++){
+	if(x % 2 === 0){
+		console.log(x);
 	}
 }
 """
@@ -202,10 +256,10 @@ if(y){
 default_code_structure = """
 [
 	{
-		"type": "IfStatement",
+		"type": "ForStatement",
 		"consequent":[
 			{
-				"type":"ForStatement"
+				"type":"IfStatement"
 			}
 		]
 	}
@@ -213,13 +267,13 @@ default_code_structure = """
 """
 
 default_assignment = """
-Write an If statement with a For Loop inside of it.  Do not use a While Loop.
+Write a For Loop with an If statement inside of it.  Do not use a While Loop.
 """
 
 # state management
 cortex = new Cortex
 	requirements:
-		must_have:['ForStatement']
+		must_have:['ForStatement','VariableDeclaration']
 		mustnt_have:['WhileStatement']
 		code_structure: default_code_structure
 	code: default_code
