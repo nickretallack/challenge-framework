@@ -98,7 +98,7 @@ Feedback = React.createClass
 
 	render: ->
 		if @props.feedback.error
-			error = <div className="bad"><span className="glyphicon glyphicon-remove" aria-hidden="true"></span> {@props.feedback.error}</div>
+			error = <div className="bad"><span className="glyphicon glyphicon-remove" aria-hidden="true"></span> {@props.feedback.error.toString()}</div>
 
 			required_structures = @props.requirements.required.val()
 			required = if required_structures.length

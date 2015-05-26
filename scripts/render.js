@@ -119,7 +119,7 @@
         }, React.createElement("span", {
           "className": "glyphicon glyphicon-remove",
           "aria-hidden": "true"
-        }), " ", this.props.feedback.error);
+        }), " ", this.props.feedback.error.toString());
         required_structures = this.props.requirements.required.val();
         required = required_structures.length ? (required_nodes = (function() {
           var i, len, results;
